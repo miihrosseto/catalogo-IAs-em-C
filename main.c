@@ -7,6 +7,7 @@
 #define qtdIA 50
 #define tamNome 81
 #define tamPrompt 1001
+#define tamLinha 1200
 
 //protótipos de funções----------------------------------------------------------------------------
 int menuGeral();
@@ -14,14 +15,14 @@ int menuLocal();
 int menuSetores();
 int lerTexto();
 int lerInt();
+void listarIA();
 void cadastro(int ids[], char nomesIA[][tamNome], int setor[], int notas[], char prompts[][tamPrompt], int *qtdCadastradas);
-void listarIA(int ids[], char nomesIA[][tamNome], int setor[], int notas[], char prompts[][tamPrompt], int qtdCadastradas);
 void buscarSetor(int setor[], char nomesIA[][tamNome], int ids[], int notas[], char prompts[][tamPrompt], int qtdCadastradas);
-void buscarId(int x[], char z[][tamNome], int a[], char p[][tamPrompt], int b);
-void buscarNome(int ids[], char nomesIA[][tamNome], int notas[], char prompts[][tamPrompt], int qtdCadastradas);
+void buscarId();
+void buscarNome();
 void carregarCatalogo(int ids[], char nomesIA[][tamNome], int setor[], int notas[], char prompts[][tamPrompt], int *qtdCadastradas);
 void terminarLinha(FILE *arq);
-void verificarArq();
+
 
 
 //variáveis globais------------
@@ -44,18 +45,19 @@ int main(){
 
             case 1:
                 cadastro(ids,nomesIA,setor,notas,prompts,&qtdCadastradas);
+
                 break;
 
             case 2:
-                listarIA(ids, nomesIA, setor, notas, prompts, qtdCadastradas);
+                listarIA();
                 break;
 
             case 3:
-                printf("buscar id");
+                buscarId();
                 break;
 
             case 4:
-                printf("buscar nome");
+                buscarNome();
                 break;
 
             case 5:
@@ -118,7 +120,7 @@ int menuSetores(){
     printf("5 - Estoque\n");
     printf("6 - Outros\n");
     printf("7 - voltar ao menu Geral\n");
-    printf("Escolha o setor: ");
+    printf("Escolha o setor:  ");
 
     return lerInt();
 }
@@ -210,32 +212,11 @@ void cadastro(int ids[], char nomesIA[][tamNome], int setor[], int notas[], char
     fprintf(arquivoIA,"============================================\n\n");
     fclose(arquivoIA);
 
-    (posicao)++;
-
+    (*qtdCadastradas)++;
     printf("IA cadastrada com sucesso! <3\n");
 }
 
 
-void verifArq(){
-    arquivoIA = fopen("catalogo.txt","a");
-    int escolhaCriarARQ = 0;
-    if(arquivoIA == NULL){
-        printf("Margaret: Este arquivo não existe. Gostaria de criar um?");
-        printf("1 - SIM");
-        printf("2 - NAO");
-        scanf("%d", &escolhaCriarARQ);
-        if(escolhaCriarARQ == 1){
-            arquivoIA = fopen("catalogo.txt","w");
-            printf("Arquivo criado com sucesso!! <3");}
-        else if(escolhaCriarARQ == 2){
-            printf("Arquivo não criado ;)");
-            }
-        else{
-            printf("Entrada inválida. Tente novamente :(");
-            }
-        }printf("Arquivo abreto com sucesso! <3");
-        fclose(arquivoIA);
-}
 //função pra excluir o ultimo '\n' e substitui por '\0'
 int lerTexto(char onde[], int tam) {
 
@@ -252,25 +233,147 @@ int lerTexto(char onde[], int tam) {
 }
 
 //Lista todos os agentes e suas caracteristicas
-void listarIA(int ids[], char nomesIA[][tamNome], int setor[], int notas[],char prompts[][tamPrompt], int qtdCadastradas) {
-    fopen("catalogo.txt", "r");
-    if (qtdCadastradas == 0) {
-        printf("Nenhuma IA cadastrada.\n");
+void listarIA() {
+    char linha[tamLinha]; //soma dos caracteres de nome, prompt, id, setor e nota
+    arquivoIA = fopen("catalogo.txt", "r");
+
+    if (arquivoIA == NULL) {
+        printf("Nao foi possivel abrir o arquivo.\n");
         return;
     }
 
-    printf("\n--- Lista de IAs Cadastradas ---\n");
+    printf("\n========= Lista de IAs Cadastradas ==========\n");
 
-    for (int i = 0; i < qtdCadastradas; i++) {
-        int s = setor[i];
-        if (s < 1 || s > 6) s = 0;  // setor invalido vira "Desconhecido"
-
-        printf("ID: %d\n", ids[i]);
-        printf("Nome: %s\n", nomesIA[i]);
-        printf("Setor: %d\n", setor[i]);
-        printf("Nota: %d\n", notas[i]);
-        printf("Prompt: %s\n", prompts[i]);
-        printf("-----------------------------\n");
+    while (fgets(linha, sizeof(linha), arquivoIA) != NULL) {
+        printf("%s", linha);
     }
+
     fclose(arquivoIA);
+}
+
+
+void buscarId() {
+    int idBusca;
+    int idArquivo;
+    int encontrado = 0;
+    char linha[tamLinha];
+
+    arquivoIA = fopen("catalogo.txt", "r");
+
+    if (arquivoIA == NULL) {
+        printf("Nao foi possivel abrir o arquivo.\n");
+        return;
+    }
+
+    printf("Qual ID deseja buscar? :) ");
+    idBusca = lerInt();
+
+    while (fgets(linha, sizeof(linha), arquivoIA) != NULL) {
+
+        if (sscanf(linha, "ID: %d", &idArquivo) == 1) { //sscanf é tipo scanf, mas lê informação de uma string, em vez de ler do teclado. retorna 1 pra mostrar que deu certo
+            if(idBusca == idArquivo){
+
+            printf("IA encontrada!\n");
+            printf("============================================\n");
+            printf("%s", linha); // Mostra o ID
+
+            for (int i = 0; i < 4; i++) {
+                if (fgets(linha, sizeof(linha), arquivoIA) != NULL) {
+                printf("%s", linha);
+        }}
+        printf("============================================\n");
+    encontrado = 1;
+    break;
+}}}}
+
+
+void buscarNome() {
+    char linha[tamLinha];
+    char nomeBusca[tamNome];
+    char nomeMin[tamNome];
+    char nomeArquivo[tamNome];
+    char atualMin[tamNome];
+
+    int encontrado = 0;
+    int j;
+    int i;
+
+    printf("Qual nome gostaria de buscar? ");
+    lerTexto(nomeBusca, tamNome);
+
+    // converte o nome pesquisado para minusculas
+    for (j = 0; nomeBusca[j] != '\0'; j++) {
+        nomeMin[j] = tolower((unsigned char)nomeBusca[j]);
+    }
+    nomeMin[j] = '\0';
+
+    if (nomeMin[0] == '\0') {
+        printf("Digite um nome para buscar.\n");
+        return;
+    }
+
+    arquivoIA = fopen("catalogo.txt", "r");
+
+    if (arquivoIA == NULL) {
+        printf("Nao foi possivel abrir o arquivo!\n");
+        return;
+    }
+
+    // Le o arquivo linha por linha
+    while (fgets(linha, sizeof(linha), arquivoIA) != NULL) {
+
+        // verifica a linha
+        if (strncmp(linha, "NOME: ", 6) == 0 &&
+            sscanf(linha, "NOME: %80[^\n]", nomeArquivo) == 1) {
+
+            // Converte o nome do arquivo para minusculas
+            for (j = 0; nomeArquivo[j] != '\0'; j++) {
+                atualMin[j] = tolower((unsigned char)nomeArquivo[j]);
+            }
+            atualMin[j] = '\0';
+
+            // Compara os nomes
+            if (strcmp(atualMin, nomeMin) == 0) {
+                encontrado = 1;
+
+                printf("\nAgente encontrado! ;D\n");
+                printf("NOME: %s\n", nomeArquivo);
+
+                // 3 pq faz mostrar nota, setor, prompt...
+                for (j = 0; j < 3; j++) {
+                    if (fgets(linha, sizeof(linha), arquivoIA) != NULL) {
+                        printf("%s", linha);
+                    }
+                }
+            }
+        }
+    }
+
+    fclose(arquivoIA);
+
+    if (encontrado == 0) {
+        printf("\nNenhuma IA encontrada com esse nome.\n");
+    }
+}
+
+buscarSetor(){
+    int buscaSetor;
+    int idArquivo;
+    int encontrado = 0;
+    char linha[tamLinha];
+
+    arquivoIA = fopen("catalogo.txt", "r");
+
+    if (arquivoIA == NULL) {
+        printf("Nao foi possivel abrir o arquivo.\n");
+        return;
+    }
+
+    printf("Qual setor gostaria de buscar? :) ");
+    idBusca = lerInt();
+
+
+
+
+
 }
